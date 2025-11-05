@@ -1,31 +1,39 @@
 package com.sibtex.weather_android_test_app.presentation.main
 
+import android.R
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.view.View
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.button.MaterialButton
 import com.sibtex.weather_android_test_app.presentation.classic.ClassicWeatherActivity
 import com.sibtex.weather_android_test_app.presentation.compose.ComposeWeatherActivity
-import androidx.core.graphics.toColorInt
+import com.sibtex.weather_android_test_app.utils.extensions.dpToPx
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        WindowCompat.getInsetsController(window, window.decorView)?.apply {
+            isAppearanceLightStatusBars = true
+        }
         
         val container = FrameLayout(this).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
-            setPadding(64, 64, 64, 64)
+            setPadding(64.dpToPx, 64.dpToPx, 64.dpToPx, 64.dpToPx)
         }
 
         val greenColor = "#4CAF50".toColorInt()
@@ -35,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             text = "Компоуз"
             backgroundTintList = greenColorStateList
             setTextColor(Color.WHITE)
-            setPadding(32, 24, 32, 24)
+            setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
@@ -52,7 +60,7 @@ class MainActivity : AppCompatActivity() {
             text = "Классика"
             backgroundTintList = greenColorStateList
             setTextColor(Color.WHITE)
-            setPadding(32, 24, 32, 24)
+            setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
@@ -80,7 +88,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(container)
 
-        val rootView = findViewById<View>(android.R.id.content)
+        val rootView = findViewById<View>(R.id.content)
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

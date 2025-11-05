@@ -26,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +50,7 @@ import com.sibtex.weather_android_test_app.domain.model.WeatherData
 import com.sibtex.weather_android_test_app.presentation.shared.WeatherViewModel
 import com.sibtex.weather_android_test_app.presentation.shared.fold
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -70,11 +73,7 @@ fun WeatherScreen(
                 ErrorDialog(
                     error = errorMessage,
                     onRetry = { viewModel.retry() },
-                    onSelectLocation = { 
-                        val lat = 55.7569
-                        val lon = 37.6151
-                        onLocationClick(lat, lon)
-                    }
+                    onCancel = onBackClick
                 )
             }
             uiState.weatherData != null -> {
@@ -295,7 +294,7 @@ fun HourlyForecastItem(
 ) {
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val time = try {
-        timeFormat.format(java.util.Date(hour.timeEpoch * 1000))
+        timeFormat.format(Date(hour.timeEpoch * 1000))
     } catch (e: Exception) {
         hour.time.split(" ")[1].take(5)
     }
@@ -348,7 +347,7 @@ fun DailyForecastItem(
 ) {
     val dateFormat = SimpleDateFormat("EEEE, d MMMM", Locale.forLanguageTag("ru"))
     val date = try {
-        dateFormat.format(java.util.Date(forecastDay.dateEpoch * 1000))
+        dateFormat.format(Date(forecastDay.dateEpoch * 1000))
     } catch (e: Exception) {
         forecastDay.date
     }
@@ -393,7 +392,7 @@ fun DailyForecastItem(
 fun ErrorDialog(
     error: String,
     onRetry: () -> Unit,
-    onSelectLocation: () -> Unit = {}
+    onCancel: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -418,9 +417,25 @@ fun ErrorDialog(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Color(0xFF4CAF50)
+                    ),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(
+                        brush = SolidColor(Color(0xFF4CAF50)),
+                        width = 2.dp
+                    )
+                ) {
+                    Text("Отмена")
+                }
                 Button(
                     onClick = onRetry,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4CAF50)
+                    )
                 ) {
                     Text("Повторить")
                 }

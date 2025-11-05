@@ -20,7 +20,9 @@ import com.bumptech.glide.Glide
 import com.sibtex.weather_android_test_app.domain.model.ForecastDay
 import com.sibtex.weather_android_test_app.domain.model.HourlyForecast
 import com.sibtex.weather_android_test_app.domain.model.WeatherData
+import com.sibtex.weather_android_test_app.utils.extensions.dpToPx
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class WeatherView @JvmOverloads constructor(
@@ -54,7 +56,7 @@ class WeatherView @JvmOverloads constructor(
                 LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT
             )
-            setPadding(32, 32, 32, 32)
+            setPadding(32.dpToPx, 32.dpToPx, 32.dpToPx, 32.dpToPx)
         }
 
         currentWeatherContainer = LinearLayout(context).apply {
@@ -148,7 +150,6 @@ class WeatherView @JvmOverloads constructor(
     }
 
     private fun setupCurrentWeather(weatherData: WeatherData) {
-        val location = weatherData.location
         val current = weatherData.current
 
         val iconView = ImageView(context).apply {
@@ -279,7 +280,7 @@ class WeatherView @JvmOverloads constructor(
     private fun createHourlyItem(hour: HourlyForecast): LinearLayout {
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val time = try {
-            timeFormat.format(java.util.Date(hour.timeEpoch * 1000))
+            timeFormat.format(Date(hour.timeEpoch * 1000))
         } catch (e: Exception) {
             hour.time.split(" ").getOrNull(1)?.take(5) ?: hour.time
         }
@@ -293,7 +294,7 @@ class WeatherView @JvmOverloads constructor(
                 marginEnd = 8
             }
             gravity = Gravity.CENTER
-            setPadding(8, 8, 8, 8)
+            setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
 
             val timeView = TextView(context).apply {
                 text = time
@@ -350,7 +351,7 @@ class WeatherView @JvmOverloads constructor(
             text = "Выбрать местоположение"
             backgroundTintList = greenColorStateList
             setTextColor(Color.WHITE)
-            setPadding(32, 24, 32, 24)
+            setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
             setAllCaps(false)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -372,7 +373,7 @@ class WeatherView @JvmOverloads constructor(
     private fun createDailyItem(day: ForecastDay): LinearLayout {
         val dateFormat = SimpleDateFormat("EEEE, d MMMM", Locale("ru"))
         val date = try {
-            dateFormat.format(java.util.Date(day.dateEpoch * 1000))
+            dateFormat.format(Date(day.dateEpoch * 1000))
         } catch (e: Exception) {
             day.date
         }

@@ -40,7 +40,7 @@ class LocationPickerDialog(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
-            setPadding(16, 16, 16, 16)
+            setPadding(16.dpToPx, 16.dpToPx, 16.dpToPx, 16.dpToPx)
         }
 
         val mainLayout = LinearLayout(context).apply {
@@ -132,9 +132,9 @@ class LocationPickerDialog(
 
         val confirmButton = MaterialButton(context).apply {
             text = "Выбрать"
-            backgroundTintList = greenColorStateList // Зеленый фон
+            backgroundTintList = greenColorStateList
             setTextColor(Color.WHITE)
-            setPadding(32, 24, 32, 24)
+            setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
             setAllCaps(false)
             layoutParams = LinearLayout.LayoutParams(
                 0,

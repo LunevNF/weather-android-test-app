@@ -1,10 +1,13 @@
 package com.sibtex.weather_android_test_app.presentation.classic
 
 import android.R
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -17,10 +20,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.google.android.material.button.MaterialButton
+import com.sibtex.weather_android_test_app.utils.extensions.dpToPx
 import com.sibtex.weather_android_test_app.presentation.shared.LocationPickerDialog
 import com.sibtex.weather_android_test_app.presentation.shared.WeatherViewModel
-import com.sibtex.weather_android_test_app.utils.extensions.dpToPx
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,6 +37,9 @@ class ClassicWeatherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        WindowCompat.getInsetsController(window, window.decorView)?.apply {
+            isAppearanceLightStatusBars = true
+        }
 
         val mainContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -112,14 +121,21 @@ class ClassicWeatherActivity : AppCompatActivity() {
                 }
                 state.error != null -> {
                     weatherView.hideLoading()
-                    showErrorDialog(state.error) {
+                    // Скрываем кнопку "назад", если данных нет в кеше
+                    if (state.weatherData == null && headerContainer != null) {
+                        headerContainer!!.visibility = View.GONE
+                    }
+                    showErrorDialog(state.error, state.weatherData != null) {
                         viewModel.retry()
                     }
                 }
                 state.weatherData != null -> {
                     weatherView.hideLoading()
                     weatherView.updateWeatherData(state.weatherData!!)
-                    
+                    // Показываем кнопку "назад", если данные загружены
+                    if (headerContainer != null) {
+                        headerContainer!!.visibility = View.VISIBLE
+                    }
                     if (headerContainer != null && headerContainer!!.childCount == 1) {
                         val location = state.weatherData!!.location
                         val cityText = TextView(this@ClassicWeatherActivity).apply {
@@ -157,13 +173,100 @@ class ClassicWeatherActivity : AppCompatActivity() {
         ).show()
     }
 
-    private fun showErrorDialog(error: String, onRetry: () -> Unit) {
-        AlertDialog.Builder(this)
-            .setTitle("Ошибка")
-            .setMessage(error)
-            .setPositiveButton("Повторить") { _, _ -> onRetry() }
-            .setNegativeButton("Отмена", null)
-            .show()
+    private fun showErrorDialog(error: String, hasCachedData: Boolean, onRetry: () -> Unit) {
+        val greenColor = Color.parseColor("#4CAF50")
+        
+        val dialogView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24.dpToPx, 16.dpToPx, 24.dpToPx, 16.dpToPx)
+        }
+        
+        val titleView = TextView(this).apply {
+            text = "Ошибка"
+            textSize = 20f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.BLACK)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = 16.dpToPx
+            }
+        }
+        dialogView.addView(titleView)
+        
+        val messageView = TextView(this).apply {
+            text = error
+            textSize = 16f
+            setTextColor(Color.BLACK)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = 24.dpToPx
+            }
+        }
+        dialogView.addView(messageView)
+        
+        val buttonContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        
+        val cancelButton = MaterialButton(this).apply {
+            text = "Отмена"
+            setTextColor(greenColor)
+            backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+            setStrokeColor(ColorStateList.valueOf(greenColor))
+            strokeWidth = 2.dpToPx
+            setAllCaps(false)
+            setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = 8.dpToPx
+            }
+            setOnClickListener {
+                dialog.dismiss()
+                finish()
+            }
+        }
+        
+        val retryButton = MaterialButton(this).apply {
+            text = "Повторить"
+            backgroundTintList = ColorStateList.valueOf(greenColor)
+            setTextColor(Color.WHITE)
+            setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
+            setAllCaps(false)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            setOnClickListener {
+                dialog.dismiss()
+                onRetry()
+            }
+        }
+        
+        buttonContainer.addView(cancelButton)
+        buttonContainer.addView(retryButton)
+        dialogView.addView(buttonContainer)
+        
+        dialog.setOnCancelListener {
+            finish()
+        }
+        
+        dialog.show()
     }
 }
 

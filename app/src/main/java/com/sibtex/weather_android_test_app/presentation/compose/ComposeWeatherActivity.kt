@@ -5,10 +5,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.sibtex.weather_android_test_app.presentation.shared.LocationPickerDialog
 import com.sibtex.weather_android_test_app.presentation.shared.WeatherViewModel
 import com.sibtex.weather_android_test_app.ui.theme.WeatherandroidtestappTheme
@@ -22,6 +28,8 @@ class ComposeWeatherActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val darkTheme = isSystemInDarkTheme()
+            UpdateStatusBarColors(darkTheme)
             WeatherandroidtestappTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -41,6 +49,21 @@ class ComposeWeatherActivity : ComponentActivity() {
                             ).show()
                         }
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UpdateStatusBarColors(darkTheme: Boolean) {
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? ComponentActivity)?.window
+            window?.let {
+                WindowCompat.getInsetsController(it, view)?.apply {
+                    isAppearanceLightStatusBars = !darkTheme
                 }
             }
         }
