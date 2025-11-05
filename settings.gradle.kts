@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "weather-android-test-app"
 include(":app")
- 
